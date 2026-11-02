@@ -1,0 +1,361 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #030509;
+  color: #f8fafc;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+cat << 'EOF' > src/App.jsx
+import React, { useState } from 'react';
+import { Search, Wrench, ShieldCheck, Phone, Mail, Box, TrendingUp, Award, Filter, X, Cpu, CheckCircle2, RefreshCw, Activity, BarChart2 } from 'lucide-react';
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('showroom');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedBrand, setSelectedBrand] = useState('all');
+  const [activeModalCar, setActiveModalCar] = useState(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [repairForm, setRepairForm] = useState({ model: '', issue: '', phone: '' });
+  const [repairStatus, setRepairStatus] = useState('');
+
+  const cars = Array.from({ length: 100 }, (_, index) => {
+    const brands = ['ب‌ام‌و', 'مرسدس بنز', 'پورشه', 'لکسوس', 'آئودی', 'لندرور'];
+    const models = ['سری ۵ مدل 530i', 'E250 آوانگارد', 'ماکان توربو', 'RX350 اف اسپرت', 'A6 کواترو', 'رنجروور ولار'];
+    const images = [
+      'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1541899481282-d53bffe3c351?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&w=800&q=80'
+    ];
+    const brand = brands[index % brands.length];
+    const model = models[index % models.length];
+    const priceValue = 45 + ((index * 8) % 120);
+
+    return {
+      id: index + 1,
+      brand: brand,
+      name: `${brand} ${model}`,
+      year: 2016 + (index % 6),
+      price: `${priceValue.toLocaleString()},۰۰۰,۰۰۰,۰۰۰ تومان`,
+      image: images[index % images.length],
+      color: index % 3 === 0 ? 'سفید صدفی' : index % 3 === 1 ? 'مشکی متالیک' : 'خاکستری تیتانیوم',
+      mileage: `${((index + 1) * 7) % 90} هزار کیلومتر`,
+      inspection: {
+        chassis: index % 2 === 0 ? 'سالم و پلمپ (تایید لیزری)' : 'سینی سرشاسی جلو خوردگی جزئی',
+        body: index % 3 === 0 ? 'بدون رنگ و خط و خش' : index % 3 === 1 ? 'یک لکه رنگ (درب شاگرد)' : 'دو لکه رنگ کارشناسی شده',
+        engine: 'سالم و پایداری دور موتور عالی (تایید هوش مصنوعی)',
+        gearbox: 'بدون تقه، تعویض دنده‌ها نرم و بهینه',
+        score: (96 + (index % 4) * 1).toFixed(1)
+      }
+    };
+  });
+
+  const trendingCryptos = [
+    { name: 'بیت‌کوین (BTC)', price: '$67,420', change: '+3.4%', trend: 'up', chart: 'M20 50 L40 40 L60 45 L80 25 L100 15' },
+    { name: 'اتریوم (ETH)', price: '$3,540', change: '+5.1%', trend: 'up', chart: 'M20 45 L40 48 L60 35 L80 30 L100 12' },
+    { name: 'سولانا (SOL)', price: '$178.5', change: '-1.2%', trend: 'down', chart: 'M20 20 L40 35 L60 30 L80 45 L100 55' },
+    { name: 'تونکوین (TON)', price: '$6.85', change: '+8.7%', trend: 'up', chart: 'M20 50 L40 30 L60 35 L80 20 L100 10' }
+  ];
+
+  const handleScanClick = (car) => {
+    setIsScanning(true);
+    setActiveModalCar(car);
+    setTimeout(() => { setIsScanning(false); }, 1400);
+  };
+
+  const handleRepairSubmit = (e) => {
+    e.preventDefault();
+    setRepairStatus('درخواست شما با موفقیت در سیستم هوشمند رویال فام ثبت شد.');
+  };
+
+  const filteredCars = cars.filter(car => {
+    const matchesSearch = car.name.toLowerCase().includes(searchQuery.toLowerCase()) || car.brand.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesBrand = selectedBrand === 'all' || car.brand === selectedBrand;
+    return matchesSearch && matchesBrand;
+  });
+
+  return (
+    <div dir="rtl" className="min-h-screen bg-[#030509] text-slate-100 font-sans pb-16">
+      
+      {/* نوار زنده قیمت دلار و سکه */}
+      <div className="bg-slate-900 border-b border-amber-500/20 py-2.5 px-4 text-xs">
+        <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+          <div className="flex items-center gap-6 overflow-x-auto py-1">
+            <span className="flex items-center gap-1.5 text-emerald-400 font-bold whitespace-nowrap">
+              <TrendingUp className="w-4 h-4 text-emerald-500" /> دلار آزاد: ۲۸۰,۰۰۰ تومان
+            </span>
+            <span className="flex items-center gap-1.5 text-amber-400 font-bold whitespace-nowrap">
+              <Award className="w-4 h-4 text-amber-500" /> سکه امامی: ۲۷۰,۰۰۰,۰۰۰ تومان
+            </span>
+          </div>
+          <span className="text-amber-400 font-black hidden md:inline">استارتاپ فناورانه هوش مصنوعی رویال فام</span>
+        </div>
+      </div>
+
+      {/* هدر */}
+      <header className="border-b border-slate-800 bg-[#070b14] sticky top-0 z-40 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 to-yellow-300 flex items-center justify-center text-black shadow-lg">
+              <Box className="w-6 h-6 font-black" />
+            </div>
+            <div>
+              <h1 className="text-xl font-black text-white">رویال فام ماشین</h1>
+              <p className="text-[11px] text-amber-500 font-bold">پلتفرم سه‌بعدی هوشمند بازار خودرو و کارشناسی لیزری AI</p>
+            </div>
+          </div>
+          <nav className="flex gap-2 text-xs bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
+            <button onClick={() => setActiveTab('showroom')} className={`px-5 py-2.5 rounded-xl font-black transition ${activeTab === 'showroom' ? 'bg-amber-500 text-black shadow' : 'text-slate-300'}`}>نمایشگاه (۱۰۰ خودرو)</button>
+            <button onClick={() => setActiveTab('repair')} className={`px-5 py-2.5 rounded-xl font-black transition ${activeTab === 'repair' ? 'bg-amber-500 text-black shadow' : 'text-slate-300'}`}>تعمیرات و کارشناسی AI</button>
+          </nav>
+        </div>
+      </header>
+
+      {/* بدنه اصلی */}
+      <main className="max-w-7xl mx-auto px-4 py-8 space-y-10">
+        
+        {activeTab === 'showroom' && (
+          <div className="space-y-8">
+            <div className="bg-slate-900 p-6 rounded-3xl border border-amber-500/20 shadow-2xl space-y-5">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-black text-white">کلکسیون ۱۰۰ خودروی لوکس وارداتی</h2>
+                  <p className="text-slate-400 text-xs mt-1">قیمت روز بازار ایران با گارانتی کارشناسی هوش مصنوعی پیشرفته</p>
+                </div>
+                <div className="relative w-full md:w-80">
+                  <Search className="absolute right-4 top-3.5 text-amber-500 w-4 h-4" />
+                  <input 
+                    type="text" 
+                    placeholder="جستجوی برند یا مدل خودرو..." 
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl pr-11 pl-4 py-3 text-xs outline-none focus:border-amber-500 text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-800 text-xs">
+                <span className="text-amber-400 my-auto ml-2 font-bold flex items-center gap-1"><Filter className="w-4 h-4" /> فیلتر برند:</span>
+                {['all', 'ب‌ام‌و', 'مرسدس بنز', 'پورشه', 'لکسوس', 'آئودی', 'لندرور'].map(brand => (
+                  <button 
+                    key={brand}
+                    onClick={() => setSelectedBrand(brand)}
+                    className={`px-4 py-2 rounded-xl transition font-bold ${selectedBrand === brand ? 'bg-amber-500 text-black' : 'bg-slate-950 text-slate-300 border border-slate-800'}`}
+                  >
+                    {brand === 'all' ? 'همه برندها' : brand}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredCars.map(car => (
+                <div key={car.id} className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+                  <div className="relative h-56 w-full bg-slate-950 overflow-hidden flex-shrink-0">
+                    <img src={car.image} alt={car.name} className="w-full h-full object-cover" />
+                    <div className="absolute top-3 left-3 bg-black/80 text-amber-400 text-xs px-3.5 py-1.5 rounded-xl font-extrabold border border-amber-500/30">مدل {car.year}</div>
+                    <div className="absolute bottom-3 right-3 bg-amber-500 text-black text-xs px-3 py-1 rounded-lg font-black">{car.color}</div>
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                    <div className="space-y-2">
+                      <h3 className="font-black text-lg text-white">{car.name}</h3>
+                      <div className="flex justify-between text-xs text-slate-400 pt-1">
+                        <span>کارکرد: <strong className="text-slate-200">{car.mileage}</strong></span>
+                        <span className="text-emerald-400 font-bold">تایید اصالت رویال فام</span>
+                      </div>
+                    </div>
+                    <div className="space-y-3 pt-3 border-t border-slate-800">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-slate-400">قیمت روز بازار:</span>
+                        <span className="text-amber-400 font-black text-base">{car.price}</span>
+                      </div>
+                      <button 
+                        onClick={() => handleScanClick(car)}
+                        className="w-full bg-amber-500 hover:bg-amber-400 text-black font-black py-3 rounded-2xl text-xs transition flex items-center justify-center gap-2 shadow-lg"
+                      >
+                        <ShieldCheck className="w-4 h-4 text-black" />
+                        گزارش کارشناسی هوش مصنوعی بدنه
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'repair' && (
+          <div className="max-w-lg mx-auto bg-slate-900 border border-amber-500/20 rounded-3xl p-8 space-y-6 shadow-2xl">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400"><Wrench className="w-6 h-6" /></div>
+              <div>
+                <h2 className="text-xl font-black text-white">ثبت درخواست تعمیرات و کارشناسی AI</h2>
+                <p className="text-xs text-slate-400 mt-0.5">سرویس‌های تخصصی خودروهای لوکس در رویال فام</p>
+              </div>
+            </div>
+            <form onSubmit={handleRepairSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="text-slate-300 font-bold block mb-2">مدل خودروی وارداتی</label>
+                <input 
+                  type="text" 
+                  required 
+                  placeholder="مثال: BMW 528i" 
+                  value={repairForm.model}
+                  onChange={e => setRepairForm({...repairForm, model: e.target.value})}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3.5 text-white outline-none focus:border-amber-500" 
+                />
+              </div>
+              <div>
+                <label className="text-slate-300 font-bold block mb-2">شرح خدمات مورد نظر</label>
+                <input 
+                  type="text" 
+                  required 
+                  placeholder="مثال: کارشناسی رنگ و تعویض لنت" 
+                  value={repairForm.issue}
+                  onChange={e => setRepairForm({...repairForm, issue: e.target.value})}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3.5 text-white outline-none focus:border-amber-500" 
+                />
+              </div>
+              <div>
+                <label className="text-slate-300 font-bold block mb-2">شماره تماس</label>
+                <input 
+                  type="tel" 
+                  required 
+                  placeholder="09..." 
+                  value={repairForm.phone}
+                  onChange={e => setRepairForm({...repairForm, phone: e.target.value})}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3.5 text-white outline-none focus:border-amber-500" 
+                />
+              </div>
+              <button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-black font-black py-4 rounded-2xl text-sm transition shadow-xl">ثبت نهایی درخواست</button>
+            </form>
+            {repairStatus && <p className="text-center text-emerald-400 font-bold text-xs mt-3 bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-500/30">{repairStatus}</p>}
+          </div>
+        )}
+
+        {/* بخش نمودار ارزهای دیجیتال ترند */}
+        <section className="bg-slate-900 border border-amber-500/20 rounded-3xl p-6 shadow-2xl space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400"><BarChart2 className="w-5 h-5" /></div>
+              <div>
+                <h3 className="text-base font-black text-white">روند بازار و ارزهای دیجیتال ترند</h3>
+                <p className="text-xs text-slate-400">شاخص لحظه‌ای رمزارزهای محبوب متصل به بازارهای جهانی</p>
+              </div>
+            </div>
+            <span className="text-[11px] bg-emerald-500/10 text-emerald-400 font-bold px-3 py-1 rounded-xl border border-emerald-500/20 flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5" /> وضعیت بازار: صعودی فعال
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {trendingCryptos.map((crypto, idx) => (
+              <div key={idx} className="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-xs text-slate-200">{crypto.name}</span>
+                  <span className={`text-xs font-black px-2 py-0.5 rounded-lg ${crypto.trend === 'up' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                    {crypto.change}
+                  </span>
+                </div>
+                <div className="flex justify-between items-end">
+                  <div>
+                    <p className="text-[10px] text-slate-500">قیمت جهانی</p>
+                    <p className="text-sm font-black text-white">{crypto.price}</p>
+                  </div>
+                  <svg className="w-24 h-10 overflow-visible" viewBox="0 0 120 60">
+                    <path d={crypto.chart} fill="none" stroke={crypto.trend === 'up' ? '#10b981' : '#f43f5e'} strokeWidth="2.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      {/* مدال کارشناسی هوش مصنوعی */}
+      {activeModalCar && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-amber-500/40 rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
+            <button onClick={() => setActiveModalCar(null)} className="absolute top-5 left-5 bg-slate-800 text-slate-300 p-2.5 rounded-full"><X className="w-5 h-5" /></button>
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500 flex items-center justify-center text-black shadow-lg"><Cpu className="w-7 h-7 font-black" /></div>
+              <div>
+                <h3 className="font-black text-white text-lg">گزارش کارشناسی هوش مصنوعی رویال فام</h3>
+                <p className="text-xs text-amber-400 font-bold mt-1">{activeModalCar.name} (مدل {activeModalCar.year})</p>
+              </div>
+            </div>
+
+            {isScanning ? (
+              <div className="py-16 text-center space-y-4">
+                <RefreshCw className="w-12 h-12 text-amber-400 animate-spin mx-auto" />
+                <p className="text-sm font-bold text-slate-300">در حال اسکن لیزری بدنه و پردازش کامپیوتری موتور...</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+                  <div className="flex justify-between items-center text-xs pb-2 border-b border-slate-900">
+                    <span className="text-slate-400 font-bold">وضعیت شاسی و ستون‌ها:</span>
+                    <span className="text-emerald-400 font-black flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" /> {activeModalCar.inspection.chassis}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs pb-2 border-b border-slate-900">
+                    <span className="text-slate-400 font-bold">بدنه و رنگ‌شدگی:</span>
+                    <span className="text-amber-400 font-black">{activeModalCar.inspection.body}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs pb-2 border-b border-slate-900">
+                    <span className="text-slate-400 font-bold">سلامت موتور و توربو:</span>
+                    <span className="text-emerald-400 font-bold">{activeModalCar.inspection.engine}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs pb-2 border-b border-slate-900">
+                    <span className="text-slate-400 font-bold">گیربکس اتوماتیک:</span>
+                    <span className="text-white font-bold">{activeModalCar.inspection.gearbox}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs pt-1">
+                    <span className="text-slate-400 font-bold">کارکرد واقعی خودرو:</span>
+                    <span className="text-white font-bold">{activeModalCar.mileage}</span>
+                  </div>
+                </div>
+
+                <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl flex justify-between items-center">
+                  <div>
+                    <p className="text-xs text-slate-300 font-bold">امتیاز کل سلامت هوش مصنوعی</p>
+                    <p className="text-[10px] text-amber-400 mt-0.5">بر اساس آنالیز دقیق تلورانس رنگ و کامپیوتر سفری</p>
+                  </div>
+                  <span className="text-amber-400 font-black text-xl bg-amber-500/20 px-4 py-2 rounded-xl border border-amber-500/30">
+                    {activeModalCar.inspection.score}٪
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <button 
+              onClick={() => setActiveModalCar(null)}
+              className="w-full bg-amber-500 hover:bg-amber-400 text-black font-black py-3.5 rounded-2xl text-sm transition shadow-xl"
+            >
+              تایید و بستن گزارش کارشناسی
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* فوتر */}
+      <footer className="border-t border-slate-800 bg-[#030407] mt-16 py-8 text-xs">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-400 text-center sm:text-right">
+          <div>
+            <p className="font-black text-white text-sm">استارتاپ فناورانه هوش مصنوعی رویال فام</p>
+            <p className="text-[11px] text-slate-500 mt-1">پلتفرم جامع خودروهای لوکس وارداتی و کارشناسی هوشمند</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 font-bold">
+            <span className="flex items-center justify-center gap-1.5 text-amber-400"><Phone className="w-4 h-4" /> 09366681963</span>
+            <span className="flex items-center justify-center gap-1.5 text-amber-400"><Mail className="w-4 h-4" /> amirsamyaghobi62@gmail.com</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
