@@ -1,1 +1,16 @@
-{"projectId":"prj_qQHQWHImMvmhO3AcYMLZ1RIAxpty","orgId":"team_wwESP6rB0SrBKBYhSDSC48h9","projectName":"royal-fam-car-showroom"}
+{
+  "projectId": "prj_qQHQWHImMvmhO3AcYMLZ1RIAxpty",
+  "orgId": "team_wwESP6rB0SrBKBYhSDSC48h9",
+  "projectName": "royal-fam-car-showroom",
+  "settings": {
+    "createdAt": 1793566148788,
+    "framework": "vite",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "26.x"
+  }
+}
